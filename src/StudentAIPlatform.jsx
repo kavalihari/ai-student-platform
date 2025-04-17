@@ -17,40 +17,41 @@ export default function StudentAIPlatform() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pdfError, setPdfError] = useState('');
+const handleExplainClick = async () => {
+  console.log("🧠 Button clicked");
 
-  const handleExplainClick = async () => {
-    console.log("🧠 Button clicked"); // Add this for debug
-  
-    if (!selectedText.trim()) {
-      alert("Please enter or highlight a concept.");
-      return;
+  if (!selectedText.trim()) {
+    alert("Please enter or highlight a concept.");
+    return;
+  }
+
+  try {
+    const response = await fetch("https://ai-student-platform.onrender.com/explain", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text: selectedText,
+        goal: goal
+      })
+    });
+
+    const data = await response.json();
+    console.log("✅ Response:", data);
+
+    if (data.explanation) {
+      setNotes(data.explanation);
+    } else {
+      alert("⚠️ Could not get an explanation from the assistant.");
     }
+  } catch (err) {
+    console.error("❌ Error contacting backend:", err);
+    alert("❌ Failed to connect to AI assistant.");
+  }
+};
+
   
-    try {
-      const response = await fetch("https://ai-student-platform.onrender.com/explain", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: selectedText,
-          goal: goal,
-        }),
-      });
-  
-      const data = await response.json();
-      console.log("✅ Backend response:", data);
-  
-      if (data.explanation) {
-        setNotes(data.explanation);
-      } else {
-        alert("⚠️ Could not get an explanation from the assistant.");
-      }
-    } catch (err) {
-      console.error("❌ Error fetching from backend:", err);
-      alert("❌ Failed to connect to AI assistant.");
-    }
-  };
 
   const handleCreateFolder = () => {
     const folderName = newFolderName.trim();
