@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
-import { Sparkles, Youtube, BookOpen, Brain, FileText, ArrowLeft } from 'lucide-react';
+import { Sparkles, Youtube, BookOpen, Brain, FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import './index.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).toString();
@@ -126,6 +126,64 @@ export default function StudentAIPlatform() {
           <Sparkles className="inline-block w-5 h-5 mr-2 -mt-1" /> Simplify & Explain
         </button>
       </div>
+
+      <div className="bg-white p-4 rounded-xl shadow-lg border border-green-300">
+        <div className="mb-4 flex gap-2">
+          <input
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            placeholder="📁 Folder name (e.g. Chapter 1)"
+            className="w-full p-2 rounded border border-green-400"
+          />
+          <button onClick={handleCreateFolder} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">➕ Create</button>
+        </div>
+
+        {Object.keys(folders).length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {Object.keys(folders).map((folder, i) => (
+              <button
+                key={i}
+                onClick={() => handleSelectFolder(folder)}
+                className={`px-3 py-1 rounded border ${selectedFolder === folder ? 'bg-green-500 text-white' : 'border-green-400 text-green-700'}`}
+              >
+                <FolderOpen className="inline-block w-4 h-4 mr-1" />{folder}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {selectedFolder && (
+          <div>
+            <input
+              type="file"
+              accept=".pdf,.txt"
+              multiple
+              onChange={handlePageUpload}
+              className="mb-4"
+            />
+            <ul className="space-y-2">
+              {uploadedPages.map((file, index) => (
+                <li key={index} onClick={() => handlePageClick(file)} className="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
+                  📄 {file.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {pdfUrl && (
+        <div className="bg-white p-4 rounded-xl shadow-xl mt-6">
+          <button onClick={handleBackClick} className="text-blue-600 font-semibold flex items-center mb-4">
+            <ArrowLeft className="w-4 h-4 mr-1" /> Back
+          </button>
+          <Document file={pdfUrl} onLoadSuccess={handleDocumentLoadSuccess} onLoadError={() => setPdfError("❌ Failed to load PDF")}> 
+            {Array.from(new Array(numPages), (el, i) => (
+              <Page key={`page_${i + 1}`} pageNumber={i + 1} width={600} />
+            ))}
+          </Document>
+        </div>
+      )}
 
       <div className="mt-10 bg-white bg-opacity-80 shadow-xl rounded-2xl border border-purple-200">
         <div className="flex justify-around border-b border-pink-200 text-lg font-semibold text-pink-800 py-2 bg-pink-50 rounded-t-2xl">
