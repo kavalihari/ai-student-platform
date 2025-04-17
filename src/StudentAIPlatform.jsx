@@ -19,27 +19,36 @@ export default function StudentAIPlatform() {
   const [pdfError, setPdfError] = useState('');
 
   const handleExplainClick = async () => {
+    console.log("🧠 Button clicked"); // Add this for debug
+  
     if (!selectedText.trim()) {
       alert("Please enter or highlight a concept.");
       return;
     }
-
+  
     try {
       const response = await fetch("https://ai-student-platform.onrender.com/explain", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: selectedText, goal })
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: selectedText,
+          goal: goal,
+        }),
       });
-
+  
       const data = await response.json();
+      console.log("✅ Backend response:", data);
+  
       if (data.explanation) {
         setNotes(data.explanation);
       } else {
         alert("⚠️ Could not get an explanation from the assistant.");
       }
     } catch (err) {
-      console.error(err);
-      alert("❌ Error contacting the AI assistant.");
+      console.error("❌ Error fetching from backend:", err);
+      alert("❌ Failed to connect to AI assistant.");
     }
   };
 
