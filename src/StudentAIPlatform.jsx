@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
-import { Sparkles, Youtube, BookOpen, Brain, FileText, ArrowLeft } from 'lucide-react';
+import { Sparkles, Youtube, BookOpen, Brain, FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import './index.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).toString();
@@ -40,59 +40,6 @@ export default function StudentAIPlatform() {
     } catch (err) {
       console.error(err);
       alert("❌ Error contacting the AI assistant.");
-    }
-  };
-
-  const handleQuizClick = async () => {
-    if (!notes.trim()) {
-      alert("Please paste or write your notes.");
-      return;
-    }
-
-    const num_questions = parseInt(prompt("🔢 How many questions?", "5"));
-    const time_per_question = parseInt(prompt("⏱️ Time per question (in seconds)?", "60"));
-
-    if (!num_questions || !time_per_question) return;
-
-    try {
-      const quizRes = await fetch("https://ai-student-platform.onrender.com/quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          notes,
-          num_questions,
-          time_per_question
-        })
-      });
-      const quizData = await quizRes.json();
-      const blocks = quizData.quiz_text.split("Answer:");
-
-      let userAnswers = {};
-      const startTime = Date.now();
-      for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
-        const lines = block.trim().split("\n");
-        const question = lines.slice(0, -1).join("\n");
-        const answer = window.prompt(`Q${i + 1}:\n\n${question}\n\n👉 Your answer (A/B/C/D/E):`, "");
-        userAnswers[`Q${i + 1}`] = answer || "No Answer";
-      }
-      const total_time_taken = Math.floor((Date.now() - startTime) / 1000);
-
-      const evalRes = await fetch("https://ai-student-platform.onrender.com/quiz/evaluate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          quiz_text: quizData.quiz_text,
-          user_answers: userAnswers,
-          time_per_question: quizData.time_per_question,
-          total_time_taken
-        })
-      });
-      const evalData = await evalRes.json();
-      setNotes(`📊 Quiz Evaluation:\n\n${evalData.evaluation_result}`);
-    } catch (err) {
-      alert("❌ Error during quiz.");
-      console.error(err);
     }
   };
 
